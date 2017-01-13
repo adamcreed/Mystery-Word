@@ -13,7 +13,7 @@ The game is played by entering a letter; if the word contains the letter, you wi
 
 ## Requirements
 
-The game's reads from "/usr/share/dict/words" to generate it's word list.
+The game's reads from "/usr/share/dict/words" to generate its word list.
 
 ## Release History
 
