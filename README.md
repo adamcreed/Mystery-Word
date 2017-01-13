@@ -1,5 +1,5 @@
 # Mystery-Word
-> A game where you attempt to identify a word by letters in the word.
+> A game where you attempt to identify a word by guessing letters in the word.
 
 ## Usage
 
