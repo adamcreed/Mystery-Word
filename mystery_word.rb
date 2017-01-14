@@ -58,14 +58,14 @@ def out_of_guesses?(game)
 end
 
 def add_guess(game)
-  game[:letters_guessed] << get_guess(game)
+  game[:letters_guessed] << get_guess(game) unless already_guessed?(game)
 end
 
 def get_guess(game)
-  until is_single_letter?(current_guess = gets.chomp)
+  until is_single_letter?(game[:current_guess] = gets.chomp)
     print 'Enter a single letter: '
   end
-  current_guess
+  game[:current_guess]
 end
 
 def is_single_letter?(current_guess)
@@ -76,12 +76,35 @@ def is_numeric?(input)
   input.to_i.to_s == input || input.to_f.to_s == input
 end
 
+def already_guessed?(game)
+  while game[:letters_guessed].include? game[:current_guess]
+    print "You tried that one already, enter another letter: "
+    add_guess(game)
+  end
+
+  game[:letters_guessed].include? game[:letters_guessed]
+end
+
+def remove_guess(game)
+  game[:mistakes_allowed] -= 1
+end
+
+def word_does_not_contain_letter?(game)
+  unless game[:mystery_word].include? game[:current_guess]
+    print "Sorry, no #{game[:current_guess]}"
+    true
+  else
+    false
+  end
+end
+
 def play_game
   game = {}
   game[:difficulty] = select_difficulty(game)
   game[:mystery_word] = get_mystery_word(game)
   game[:mistakes_allowed] = 8
   game[:letters_guessed] = []
+  game[:current_guess] = ''
 
   print "You can guess wrong #{game[:mistakes_allowed]} times. " \
         "The word has #{game[:mystery_word].length} letters. " \
@@ -89,10 +112,8 @@ def play_game
 
 # until game_is_over?
   add_guess(game)
-  p game[:letters_guessed]
 
-#
-#     remove_guess if word_does_not_contain_letter?(game)
+  remove_guess(game) if word_does_not_contain_letter?(game)
 #
 #     display_partial_word(game)
 #   end
