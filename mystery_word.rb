@@ -58,18 +58,18 @@ def out_of_guesses?(game)
 end
 
 def add_guess(game)
-  game[:letters_guessed] << get_guess(game) unless already_guessed?(game)
+  game[:letters_guessed] << game[:current_guess]
 end
 
-def get_guess(game)
-  until is_single_letter?(game[:current_guess] = gets.chomp)
+def guess_is_invalid?(game)
+  already_guessed?(game) or is_not_single_letter?(game[:current_guess])
+end
+
+def is_not_single_letter?(current_guess)
+  if is_numeric?(current_guess) or not(current_guess.length == 1)
     print 'Enter a single letter: '
+    true
   end
-  game[:current_guess]
-end
-
-def is_single_letter?(current_guess)
-  not(is_numeric?(current_guess)) and current_guess.length == 1
 end
 
 def is_numeric?(input)
@@ -77,12 +77,10 @@ def is_numeric?(input)
 end
 
 def already_guessed?(game)
-  while game[:letters_guessed].include? game[:current_guess]
+  if game[:letters_guessed].include? game[:current_guess]
     print "You tried that one already, enter another letter: "
-    add_guess(game)
+    true
   end
-
-  game[:letters_guessed].include? game[:letters_guessed]
 end
 
 def remove_guess(game)
@@ -90,12 +88,45 @@ def remove_guess(game)
 end
 
 def word_does_not_contain_letter?(game)
-  unless game[:mystery_word].include? game[:current_guess]
-    print "Sorry, no #{game[:current_guess]}"
+  unless game[:mystery_word].include? game[:letters_guessed].last
+    puts "Sorry, no #{game[:letters_guessed].last} "
     true
   else
     false
   end
+end
+
+def display_partial_word(game)
+  game[:censored_word] = ''
+
+  game[:mystery_word].chars.each do |char|
+
+    game[:censored_word].concat(" #{char} ")
+    game[:censored_word].gsub!(char, "_") unless game[:letters_guessed].include? char
+
+  end
+
+  puts game[:censored_word]
+end
+
+def ask_if_playing_again
+  play_again = ''
+
+  print "Would you like to play again (Y/N)? "
+
+  until play_again =~ /[yn]/
+    play_again = get_first_char
+
+    print "Please choose yes or no: " unless play_again =~ /[yn]/
+  end
+
+  play_again
+end
+
+def display_game_status(game)
+  print "You have #{game[:mistakes_allowed]} chances left. " \
+        "Previous guesses: #{game[:letters_guessed].join(',')}. " \
+        "Choose another letter: "
 end
 
 def play_game
@@ -105,27 +136,34 @@ def play_game
   game[:mistakes_allowed] = 8
   game[:letters_guessed] = []
   game[:current_guess] = ''
+  game[:censored_word] = ''
 
   print "You can guess wrong #{game[:mistakes_allowed]} times. " \
         "The word has #{game[:mystery_word].length} letters. " \
         "Enter a letter: "
 
-# until game_is_over?
-  add_guess(game)
+  until game_is_over?(game)
+    game[:current_guess] = gets.chomp
 
-  remove_guess(game) if word_does_not_contain_letter?(game)
-#
-#     display_partial_word(game)
-#   end
-#
-#   play_again?
-# end
-#
-# def main
-#   play_again = true
-#   while play_again
-#     play_again = play_game
-#   end
+    unless guess_is_invalid?(game)
+      add_guess(game)
+
+      remove_guess(game) if word_does_not_contain_letter?(game)
+
+      display_partial_word(game)
+
+      display_game_status(game) unless game_is_over?(game)
+    end
+  end
+
+  ask_if_playing_again
 end
 
-play_game
+def main
+  play_again = 'y'
+  while play_again == 'y'
+    play_again = play_game
+  end
+end
+
+main
