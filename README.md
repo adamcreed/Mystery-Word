@@ -17,6 +17,8 @@ The game reads from "/usr/share/dict/words" to generate its word list.
 
 ## Release History
 
+* 0.1.0
+    * First functional release
 * 0.0.1
     * Work in progress
 
