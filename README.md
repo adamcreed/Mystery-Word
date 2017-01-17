@@ -15,8 +15,12 @@ The game is played by entering a letter; if the word contains the letter, you wi
 
 The game reads from "/usr/share/dict/words" to generate its word list.
 
+The program looks for ['plurality_check.rb'](https://github.com/adamcreed/Plurality-Check) in the same directory as 'mystery_word.rb'. However, it only provides enhancements to the user experience and is not required to run.
+
 ## Release History
 
+* 1.0.1
+    * Moved 'plurality_check' to separate file
 * 1.0.0
     * Added more feedback to improve gameplay experience
 * 0.1.0

@@ -1,7 +1,10 @@
+require_relative 'plurality_check' if File.exists?('plurality_check.rb')
+
 def main
   play_again = 'y'
   while play_again == 'y'
-    play_again = play_game
+    play_game
+    play_again = ask_if_playing_again
   end
 end
 
@@ -40,7 +43,6 @@ def play_game
 
   reveal_word(game) if out_of_guesses?(game)
   high_five if word_is_revealed?(game)
-  ask_if_playing_again
 end
 
 def game_is_over?(game)
@@ -64,7 +66,7 @@ def select_difficulty(game)
   until game[:difficulty] =~ /[enh]/
     game[:difficulty] = get_first_char
 
-    puts "Please choose easy, normal, or hard" \
+    print "Please choose easy, normal, or hard: " \
           unless game[:difficulty] =~ /[enh]/
 
   end
@@ -73,7 +75,7 @@ def select_difficulty(game)
 end
 
 def get_first_char
-  gets.chomp[0].downcase
+  gets.chomp.downcase[0]
 end
 
 def get_mystery_word(game)
@@ -109,11 +111,11 @@ def add_guess(game)
 end
 
 def guess_is_invalid?(game)
-  already_guessed?(game) or is_not_single_letter?(game[:current_guess])
+  already_guessed?(game) or is_not_single_letter?(game)
 end
 
-def is_not_single_letter?(current_guess)
-  if not(current_guess =~ /[a-z]/ and current_guess.length == 1)
+def is_not_single_letter?(game)
+  if not(game[:current_guess] =~ /[a-z]/ and game[:current_guess].length == 1)
     print 'Enter a single letter: '
     true
 
@@ -153,9 +155,16 @@ def display_partial_word(game)
 end
 
 def display_game_status(game)
-  print "You have #{game[:mistakes_allowed]} " \
-        "#{plural_check(game[:mistakes_allowed], 'chance')} left. " \
-        "Previous guesses: #{game[:letters_guessed].sort.join(',')}. " \
+  print "You have #{game[:mistakes_allowed]} "
+
+  if defined? plurality_check(game[:mistakes_allowed], 'chance')
+    print "#{plurality_check(game[:mistakes_allowed], 'chance')} left. "
+
+  else
+    print 'chance(s) left. '
+  end
+
+  print "Previous guesses: #{game[:letters_guessed].sort.join(', ')}. " \
         "Choose another letter: "
 end
 
@@ -179,28 +188,6 @@ def ask_if_playing_again
   end
 
   play_again
-end
-
-def plural_check(quantity, noun)
-  if quantity.to_i == 1
-    noun
-  else
-
-    case noun[-2..-1]
-    when /ch/, /sh/, /.s/, /.x/, /.z/
-      noun + 'es'
-    when /[aeiou]y/
-      noun + 's'
-    when /.y/
-      noun[0..-2] + 'ies'
-    when /.f/
-      noun[0..-2] + 'ves'
-    when /fe/
-      noun[0..-3] + 'ves'
-    else
-      noun + 's'
-    end
-  end
 end
 
 main if __FILE__ == $PROGRAM_NAME
